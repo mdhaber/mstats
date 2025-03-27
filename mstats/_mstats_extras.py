@@ -436,7 +436,7 @@ def compare_medians_ms(group_1, group_2, axis=None):
 
     References
     ----------
-    #. McKean, Joseph W., and Ronald M. Schrader. "A comparison of methods
+    .. [1] McKean, Joseph W., and Ronald M. Schrader. "A comparison of methods
        for studentizing the sample median." Communications in
        Statistics-Simulation and Computation 13.6 (1984): 751-773.
 

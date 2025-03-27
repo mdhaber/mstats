@@ -1384,7 +1384,7 @@ def sen_seasonal_slopes(x):
 
     References
     ----------
-    #.     Hirsch, Robert M., James R. Slack, and Richard A. Smith.
+    .. [1] Hirsch, Robert M., James R. Slack, and Richard A. Smith.
            "Techniques of trend analysis for monthly water quality data."
            *Water Resources Research* 18.1 (1982): 107-121.
 
@@ -2040,36 +2040,7 @@ def trim(a, limits=None, inclusive=(True,True), relative=False, axis=None):
 
     Returns a masked version of the input array.
 
-    Parameters
-    ----------
-    a : sequence
-        Input array
-    limits : {None, tuple}, optional
-        If `relative` is False, tuple (lower limit, upper limit) in absolute values.
-        Values of the input array lower (greater) than the lower (upper) limit are
-        masked.
-
-        If `relative` is True, tuple (lower percentage, upper percentage) to cut
-        on each side of the  array, with respect to the number of unmasked data.
-
-        Noting n the number of unmasked data before trimming, the (n*limits[0])th
-        smallest data and the (n*limits[1])th largest data are masked, and the
-        total number of unmasked data after trimming is n*(1.-sum(limits))
-        In each case, the value of one limit can be set to None to indicate an
-        open interval.
-
-        If limits is None, no trimming is performed
-    inclusive : {(bool, bool) tuple}, optional
-        If `relative` is False, tuple indicating whether values exactly equal
-        to the absolute limits are allowed.
-        If `relative` is True, tuple indicating whether the number of data
-        being masked on each side should be rounded (True) or truncated
-        (False).
-    relative : bool, optional
-        Whether to consider the limits as absolute values (False) or proportions
-        to cut (True).
-    axis : int, optional
-        Axis along which to trim.
+    %s
 
     Examples
     --------
@@ -2085,6 +2056,10 @@ def trim(a, limits=None, inclusive=(True,True), relative=False, axis=None):
         return trimr(a, limits=limits, inclusive=inclusive, axis=axis)
     else:
         return trima(a, limits=limits, inclusive=inclusive)
+
+
+if trim.__doc__:
+    trim.__doc__ = trim.__doc__ % trimdoc
 
 
 def trimboth(data, proportiontocut=0.2, inclusive=(True,True), axis=None):
@@ -2184,36 +2159,7 @@ def trimmed_var(a, limits=(0.1,0.1), inclusive=(1,1), relative=True,
                 axis=None, ddof=0):
     """Returns the trimmed variance of the data along the given axis.
 
-    Parameters
-    ----------
-    a : sequence
-        Input array
-    limits : {None, tuple}, optional
-        If `relative` is False, tuple (lower limit, upper limit) in absolute values.
-        Values of the input array lower (greater) than the lower (upper) limit are
-        masked.
-
-        If `relative` is True, tuple (lower percentage, upper percentage) to cut
-        on each side of the  array, with respect to the number of unmasked data.
-
-        Noting n the number of unmasked data before trimming, the (n*limits[0])th
-        smallest data and the (n*limits[1])th largest data are masked, and the
-        total number of unmasked data after trimming is n*(1.-sum(limits))
-        In each case, the value of one limit can be set to None to indicate an
-        open interval.
-
-        If limits is None, no trimming is performed
-    inclusive : {(bool, bool) tuple}, optional
-        If `relative` is False, tuple indicating whether values exactly equal
-        to the absolute limits are allowed.
-        If `relative` is True, tuple indicating whether the number of data
-        being masked on each side should be rounded (True) or truncated
-        (False).
-    relative : bool, optional
-        Whether to consider the limits as absolute values (False) or proportions
-        to cut (True).
-    axis : int, optional
-        Axis along which to trim.
+    %s
     ddof : {0,integer}, optional
         Means Delta Degrees of Freedom. The denominator used during computations
         is (n-ddof). DDOF=0 corresponds to a biased estimate, DDOF=1 to an un-
@@ -2230,40 +2176,15 @@ def trimmed_var(a, limits=(0.1,0.1), inclusive=(1,1), relative=True,
     return out.var(axis=axis, ddof=ddof)
 
 
+if trimmed_var.__doc__:
+    trimmed_var.__doc__ = trimmed_var.__doc__ % trimdoc
+
+
 def trimmed_std(a, limits=(0.1,0.1), inclusive=(1,1), relative=True,
                 axis=None, ddof=0):
     """Returns the trimmed standard deviation of the data along the given axis.
 
-    Parameters
-    ----------
-    a : sequence
-        Input array
-    limits : {None, tuple}, optional
-        If `relative` is False, tuple (lower limit, upper limit) in absolute values.
-        Values of the input array lower (greater) than the lower (upper) limit are
-        masked.
-
-        If `relative` is True, tuple (lower percentage, upper percentage) to cut
-        on each side of the  array, with respect to the number of unmasked data.
-
-        Noting n the number of unmasked data before trimming, the (n*limits[0])th
-        smallest data and the (n*limits[1])th largest data are masked, and the
-        total number of unmasked data after trimming is n*(1.-sum(limits))
-        In each case, the value of one limit can be set to None to indicate an
-        open interval.
-
-        If limits is None, no trimming is performed
-    inclusive : {(bool, bool) tuple}, optional
-        If `relative` is False, tuple indicating whether values exactly equal
-        to the absolute limits are allowed.
-        If `relative` is True, tuple indicating whether the number of data
-        being masked on each side should be rounded (True) or truncated
-        (False).
-    relative : bool, optional
-        Whether to consider the limits as absolute values (False) or proportions
-        to cut (True).
-    axis : int, optional
-        Axis along which to trim.
+    %s
     ddof : {0,integer}, optional
         Means Delta Degrees of Freedom. The denominator used during computations
         is (n-ddof). DDOF=0 corresponds to a biased estimate, DDOF=1 to an un-
@@ -2277,6 +2198,10 @@ def trimmed_std(a, limits=(0.1,0.1), inclusive=(1,1), relative=True,
     else:
         out = trima(a,limits=limits,inclusive=inclusive)
     return out.std(axis=axis,ddof=ddof)
+
+
+if trimmed_std.__doc__:
+    trimmed_std.__doc__ = trimmed_std.__doc__ % trimdoc
 
 
 def trimmed_stde(a, limits=(0.1,0.1), inclusive=(1,1), axis=None):
@@ -3340,8 +3265,8 @@ def mquantiles(a, prob=(.25, .5, .75), alphap=.4, betap=.4, axis=None,
 
     References
     ----------
-    #.     *R* statistical software: https://www.r-project.org/
-    #.     *R* ``quantile`` function:
+    .. [1] *R* statistical software: https://www.r-project.org/
+    .. [2] *R* ``quantile`` function:
             http://stat.ethz.ch/R-manual/R-devel/library/stats/html/quantile.html
 
     Examples

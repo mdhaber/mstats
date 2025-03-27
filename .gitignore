@@ -70,8 +70,6 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-docs/build/
-docs/generated/
 
 # PyBuilder
 .pybuilder/
@@ -178,7 +176,3 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-
-# pixi environments
-.pixi
-*.egg-info
