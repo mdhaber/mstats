@@ -36,22 +36,7 @@ python = ">=3.11,<3.14"
 [tool.pixi.feature.scipy-dev.pypi-dependencies]
 scipy = { version = "*", index = "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple" }
 
-[tool.pixi.feature.docs.dependencies]
-sphinx = ">=7.0"
-furo = ">=2023.08.17"
-myst-parser = ">=0.13"
-sphinx-copybutton = "*"
-sphinx-autodoc-typehints = "*"
-# Needed to import parsed modules with autodoc
-pytest = "*"
-numpy = "*"
-
-[tool.pixi.feature.docs.tasks]
-docs = { cmd = "sphinx-build -E -W . build/", cwd = "docs" }
-open-docs = { cmd = "open build/index.html", cwd = "docs", depends-on = ["docs"] }
-
 [tool.pixi.environments]
 default = { solve-group = "default" }
 tests = { features = ["tests"], solve-group = "default" }
 tests-scipy-dev = { features = ["tests", "scipy-dev"], solve-group = "scipy-dev", no-default-feature = true }
-docs = { features = ["docs"], solve-group = "default" }
