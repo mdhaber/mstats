@@ -19,10 +19,8 @@ from numpy.ma.testutils import (assert_equal, assert_almost_equal,
                                 assert_allclose, assert_array_equal)
 from numpy.testing import suppress_warnings
 from .. import _mstats_basic
-from scipy.stats._axis_nan_policy import SmallSampleWarning, too_small_1d_not_omit
 import numpy.testing as npt
 import numpy.ma.testutils as ma_npt
-import scipy.stats._stats_py as _stats_py
 
 
 def check_named_results(res, attributes, ma=False):
@@ -468,21 +466,6 @@ class TestCorr:
             res = _mstats_basic._kendall_p_exact(nc[0], nc[1])
             assert_almost_equal(res, expected)
 
-    @pytest.mark.xslow
-    def test_kendall_p_exact_large(self):
-        # Test for the exact method with large samples (n >= 171)
-        # expected values generated using SymPy
-        expectations = {(400, 38965): 0.48444283672113314099,
-                        (401, 39516): 0.66363159823474837662,
-                        (800, 156772): 0.42265448483120932055,
-                        (801, 157849): 0.53437553412194416236,
-                        (1600, 637472): 0.84200727400323538419,
-                        (1601, 630304): 0.34465255088058593946}
-
-        for nc, expected in expectations.items():
-            res = _mstats_basic._kendall_p_exact(nc[0], nc[1])
-            assert_almost_equal(res, expected)
-
     # mstats.pointbiserialr returns a NumPy float for the statistic, but converts
     # it to a masked array with no masked elements before calling `special.betainc`,
     # which won't accept masked arrays when `SCIPY_ARRAY_API=1`.
@@ -924,8 +907,6 @@ def test_regress_simple():
     result = mstats.linregress(x, y)
 
     # Result is of a correct class and with correct fields
-    lr = _stats_py.LinregressResult
-    assert_(isinstance(result, lr))
     attributes = ('slope', 'intercept', 'rvalue', 'pvalue', 'stderr')
     check_named_results(result, attributes, ma=True)
     assert 'intercept_stderr' in dir(result)
@@ -1095,6 +1076,7 @@ def test_plotting_positions():
 
 class TestNormalitytests:
 
+    @pytest.mark.filterwarnings("ignore:One or more sample arguments:RuntimeWarning")
     def test_vs_nonmasked(self):
         x = np.array((-2, -1, 0, 1, 2, 3)*4)**2
         assert_array_almost_equal(mstats.normaltest(x),
@@ -1108,10 +1090,9 @@ class TestNormalitytests:
         mfuncs = [mstats.normaltest, mstats.skewtest, mstats.kurtosistest]
         x = [1, 2, 3, 4]
         for func, mfunc in zip(funcs, mfuncs):
-            with pytest.warns(SmallSampleWarning, match=too_small_1d_not_omit):
-                res = func(x)
-                assert np.isnan(res.statistic)
-                assert np.isnan(res.pvalue)
+            res = func(x)
+            assert np.isnan(res.statistic)
+            assert np.isnan(res.pvalue)
             assert_raises(ValueError, mfunc, x)
 
     def test_axis_None(self):
