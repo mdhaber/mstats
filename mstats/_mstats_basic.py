@@ -41,11 +41,9 @@ import warnings
 from collections import namedtuple
 
 from scipy.stats import distributions
-from scipy._lib._util import _rename_parameter, _contains_nan
-from scipy._lib._bunch import _make_tuple_bunch
+from ._vendored import (_rename_parameter, _contains_nan, _make_tuple_bunch,
+                        SignificanceResult, _get_pvalue)
 from scipy import stats, special
-import scipy.stats._stats_py
-import scipy.stats._stats_py as _stats_py
 
 
 def _find_repeats(arr):
@@ -149,7 +147,7 @@ def argstoarray(*args):
     --------
     A 2D masked array constructed from a group of sequences is returned.
 
-    >>> from scipy.stats.mstats import argstoarray
+    >>> from mstats import argstoarray
     >>> argstoarray([1, 2, 3], [4, 5, 6])
     masked_array(
      data=[[1.0, 2.0, 3.0],
@@ -204,7 +202,7 @@ def find_repeats(arr):
 
     Examples
     --------
-    >>> from scipy.stats import mstats
+    >>> import mstats
     >>> mstats.find_repeats([2, 1, 2, 3, 2, 2, 5])
     (array([2.]), array([4]))
 
@@ -248,7 +246,7 @@ def count_tied_groups(x, use_missing=False):
 
     Examples
     --------
-    >>> from scipy.stats import mstats
+    >>> import mstats
     >>> import numpy as np
     >>> z = [0, 0, 0, 2, 2, 2, 3, 3, 4, 5, 6]
     >>> mstats.count_tied_groups(z)
@@ -360,7 +358,7 @@ def mode(a, axis=0):
     --------
     >>> import numpy as np
     >>> from scipy import stats
-    >>> from scipy.stats import mstats
+    >>> import mstats
     >>> m_arr = np.ma.array([1, 1, 0, 0, 0, 0], mask=[0, 0, 1, 1, 1, 0])
     >>> mstats.mode(m_arr)  # note that most zeros are masked
     ModeResult(mode=array([1.]), count=array([2.]))
@@ -522,7 +520,7 @@ def pearsonr(x, y):
     --------
     >>> import numpy as np
     >>> from scipy import stats
-    >>> from scipy.stats import mstats
+    >>> import mstats
     >>> mstats.pearsonr([1, 2, 3, 4, 5], [10, 9, 2.5, 6, 4])
     (-0.7426106572325057, 0.1505558088534455)
 
@@ -580,7 +578,7 @@ def pearsonr(x, y):
     if df < 0:
         return (masked, masked)
 
-    return scipy.stats._stats_py.pearsonr(
+    return stats.pearsonr(
                 ma.masked_array(x, mask=m).compressed(),
                 ma.masked_array(y, mask=m).compressed())
 
@@ -686,7 +684,7 @@ def spearmanr(x, y=None, use_ties=True, axis=None, nan_policy='propagate',
 
         # If either column is entirely NaN or Inf
         if not np.any(x.data):
-            res = scipy.stats._stats_py.SignificanceResult(np.nan, np.nan)
+            res = SignificanceResult(np.nan, np.nan)
             res.correlation = np.nan
             return res
 
@@ -710,12 +708,11 @@ def spearmanr(x, y=None, use_ties=True, axis=None, nan_policy='propagate',
 
         # For backwards compatibility, return scalars when comparing 2 columns
         if rs.shape == (2, 2):
-            res = scipy.stats._stats_py.SignificanceResult(rs[1, 0],
-                                                           prob[1, 0])
+            res = SignificanceResult(rs[1, 0], prob[1, 0])
             res.correlation = rs[1, 0]
             return res
         else:
-            res = scipy.stats._stats_py.SignificanceResult(rs, prob)
+            res = SignificanceResult(rs, prob)
             res.correlation = rs
             return res
 
@@ -735,7 +732,7 @@ def spearmanr(x, y=None, use_ties=True, axis=None, nan_policy='propagate',
                 prob[var1, var2] = result.pvalue
                 prob[var2, var1] = result.pvalue
 
-        res = scipy.stats._stats_py.SignificanceResult(rs, prob)
+        res = SignificanceResult(rs, prob)
         res.correlation = rs
         return res
 
@@ -868,7 +865,7 @@ def kendalltau(x, y, use_ties=True, use_missing=False, method='auto',
         n -= int(m.sum())
 
     if n < 2:
-        res = scipy.stats._stats_py.SignificanceResult(np.nan, np.nan)
+        res = SignificanceResult(np.nan, np.nan)
         res.correlation = np.nan
         return res
 
@@ -924,12 +921,12 @@ def kendalltau(x, y, use_ties=True, use_missing=False, method='auto',
         var_s /= 18.
         var_s += (v1 + v2)
         z = (C-D)/np.sqrt(var_s)
-        prob = scipy.stats._stats_py._get_pvalue(z, distributions.norm, alternative)
+        prob = _get_pvalue(z, distributions.norm, alternative)
     else:
         raise ValueError("Unknown method "+str(method)+" specified, please "
                          "use auto, exact or asymptotic.")
 
-    res = scipy.stats._stats_py.SignificanceResult(tau[()], prob[()])
+    res = SignificanceResult(tau[()], prob[()])
     res.correlation = tau
     return res
 
@@ -1186,15 +1183,15 @@ def linregress(x, y=None):
         x = ma.array(x, mask=m)
         y = ma.array(y, mask=m)
         if np.any(~m):
-            result = _stats_py.linregress(x.data[~m], y.data[~m])
+            result = stats.linregress(x.data[~m], y.data[~m])
         else:
             # All data is masked
-            result = _stats_py.LinregressResult(slope=None, intercept=None,
-                                                rvalue=None, pvalue=None,
-                                                stderr=None,
-                                                intercept_stderr=None)
+            result = stats.LinregressResult(slope=None, intercept=None,
+                                            rvalue=None, pvalue=None,
+                                            stderr=None,
+                                            intercept_stderr=None)
     else:
-        result = _stats_py.linregress(x.data, y.data)
+        result = stats.linregress(x.data, y.data)
 
     return result
 
@@ -1728,7 +1725,7 @@ def kruskal(*args):
 
     Examples
     --------
-    >>> from scipy.stats.mstats import kruskal
+    >>> from mstats import kruskal
 
     Random samples from three different brands of batteries were tested
     to see how long the charge lasted. Results were as follows:
@@ -1804,7 +1801,7 @@ def ks_1samp(x, cdf, args=(), alternative="two-sided", method='auto'):
     """
     alternative = {'t': 'two-sided', 'g': 'greater', 'l': 'less'}.get(
        alternative.lower()[0], alternative)
-    return scipy.stats._stats_py.ks_1samp(
+    return stats.ks_1samp(
         x, cdf, args=args, alternative=alternative, method=method)
 
 
@@ -1840,11 +1837,11 @@ def ks_2samp(data1, data2, alternative="two-sided", method='auto'):
 
     """
     # Ideally this would be accomplished by
-    # ks_2samp = scipy.stats._stats_py.ks_2samp
+    # ks_2samp = stats.ks_2samp
     # but the circular dependencies between _mstats_basic and stats prevent that.
     alternative = {'t': 'two-sided', 'g': 'greater', 'l': 'less'}.get(
        alternative.lower()[0], alternative)
-    return scipy.stats._stats_py.ks_2samp(data1, data2,
+    return stats.ks_2samp(data1, data2,
                                           alternative=alternative,
                                           method=method)
 
@@ -1870,8 +1867,7 @@ def kstest(data1, data2, args=(), alternative='two-sided', method='auto'):
     tuple of (K-S statistic, probability)
 
     """
-    return scipy.stats._stats_py.kstest(data1, data2, args,
-                                        alternative=alternative, method=method)
+    return stats.kstest(data1, data2, args, alternative=alternative, method=method)
 
 
 def trima(a, limits=None, inclusive=(True,True)):
@@ -1894,7 +1890,7 @@ def trima(a, limits=None, inclusive=(True,True)):
 
     Examples
     --------
-    >>> from scipy.stats.mstats import trima
+    >>> from mstats import trima
     >>> import numpy as np
 
     >>> a = np.arange(10)
@@ -2044,7 +2040,7 @@ def trim(a, limits=None, inclusive=(True,True), relative=False, axis=None):
 
     Examples
     --------
-    >>> from scipy.stats.mstats import trim
+    >>> from mstats import trim
     >>> z = [ 1, 2, 3, 4, 5, 6, 7, 8, 9,10]
     >>> print(trim(z,(3,8)))
     [-- -- 3 4 5 6 7 8 -- --]
@@ -2359,7 +2355,7 @@ def tmean(a, limits=None, inclusive=(True, True), axis=None):
     Examples
     --------
     >>> import numpy as np
-    >>> from scipy.stats import mstats
+    >>> import mstats
     >>> a = np.array([[6, 8, 3, 0],
     ...               [3, 9, 1, 2],
     ...               [8, 7, 8, 2],
@@ -2453,7 +2449,7 @@ def tmin(a, lowerlimit=None, axis=0, inclusive=True):
     Examples
     --------
     >>> import numpy as np
-    >>> from scipy.stats import mstats
+    >>> import mstats
     >>> a = np.array([[6, 8, 3, 0],
     ...               [3, 2, 1, 2],
     ...               [8, 1, 8, 2],
@@ -2504,7 +2500,7 @@ def tmax(a, upperlimit=None, axis=0, inclusive=True):
     Examples
     --------
     >>> import numpy as np
-    >>> from scipy.stats import mstats
+    >>> import mstats
     >>> a = np.array([[6, 8, 3, 0],
     ...               [3, 9, 1, 2],
     ...               [8, 7, 8, 2],
@@ -2614,7 +2610,7 @@ def winsorize(a, limits=None, inclusive=(True, True), inplace=False,
     Examples
     --------
     >>> import numpy as np
-    >>> from scipy.stats.mstats import winsorize
+    >>> from mstats import winsorize
 
     A shuffled array contains integers from 1 to 10.
 
@@ -2811,7 +2807,7 @@ def variation(a, axis=0, ddof=0):
     Examples
     --------
     >>> import numpy as np
-    >>> from scipy.stats.mstats import variation
+    >>> from mstats import variation
     >>> a = np.array([2,8,4])
     >>> variation(a)
     0.5345224838248487
@@ -2980,7 +2976,7 @@ def describe(a, axis=0, ddof=0, bias=True):
     Examples
     --------
     >>> import numpy as np
-    >>> from scipy.stats.mstats import describe
+    >>> from mstats import describe
     >>> ma = np.ma.array(range(6), mask=[0, 0, 0, 1, 1, 1])
     >>> describe(ma)
     DescribeResult(nobs=np.int64(3), minmax=(masked_array(data=0,
@@ -3090,7 +3086,7 @@ def skewtest(a, axis=0, alternative='two-sided'):
     alpha = ma.sqrt(2.0/(W2-1))
     y = ma.where(y == 0, 1, y)
     Z = delta*ma.log(y/alpha + ma.sqrt((y/alpha)**2+1))
-    pvalue = scipy.stats._stats_py._get_pvalue(Z, distributions.norm, alternative)
+    pvalue = _get_pvalue(Z, distributions.norm, alternative)
 
     return SkewtestResult(Z[()], pvalue[()])
 
@@ -3161,7 +3157,7 @@ def kurtosistest(a, axis=0, alternative='two-sided'):
     term2 = np.ma.where(denom > 0, ma.power((1-2.0/A)/denom, 1/3.0),
                         -ma.power(-(1-2.0/A)/denom, 1/3.0))
     Z = (term1 - term2) / np.sqrt(2/(9.0*A))
-    pvalue = scipy.stats._stats_py._get_pvalue(Z, distributions.norm, alternative)
+    pvalue = _get_pvalue(Z, distributions.norm, alternative)
 
     return KurtosistestResult(Z[()], pvalue[()])
 
@@ -3272,7 +3268,7 @@ def mquantiles(a, prob=(.25, .5, .75), alphap=.4, betap=.4, axis=None,
     Examples
     --------
     >>> import numpy as np
-    >>> from scipy.stats.mstats import mquantiles
+    >>> from mstats import mquantiles
     >>> a = np.array([6., 47., 49., 15., 42., 41., 7., 39., 43., 40., 36.])
     >>> mquantiles(a)
     array([ 19.2,  40. ,  42.8])
@@ -3614,7 +3610,7 @@ def brunnermunzel(x, y, alternative="two-sided", distribution="t"):
 
     Examples
     --------
-    >>> from scipy.stats.mstats import brunnermunzel
+    >>> from mstats import brunnermunzel
     >>> import numpy as np
     >>> x1 = [1, 2, np.nan, np.nan, 1, 1, 1, 1, 1, 1, 2, 4, 1, 1]
     >>> x2 = [3, 3, 4, 3, 1, 2, 3, 1, 1, 5, 4]

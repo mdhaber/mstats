@@ -58,7 +58,7 @@ def hdquantiles(data, prob=(.25, .5, .75), axis=None, var=False,):
     Examples
     --------
     >>> import numpy as np
-    >>> from scipy.stats.mstats import hdquantiles
+    >>> from mstats import hdquantiles
     >>>
     >>> # Sample data
     >>> data = np.array([1.2, 2.5, 3.7, 4.0, 5.1, 6.3, 7.0, 8.2, 9.4])
